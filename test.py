@@ -71,13 +71,14 @@ def evaluate(image_path='./imgs/116.jpg', cp='cp/79999_iter.pth'):
         img = img.cuda()
         out = net(img)[0]
         parsing = out.squeeze(0).cpu().numpy().argmax(0)
-        # print(parsing)
-        # print(np.unique(parsing))
+        # print(np.shape(img),np.shape(parsing),parsing) => torch.Size([1,3,512, 512]) / (512, 512) / [0 0 0...0 0 0]~[17 17 17... 17 17 17]
+        # print(np.unique(parsing)) 
 
         # vis_parsing_maps(image, parsing, stride=1, save_im=False, save_path=osp.join(respth, dspth))
         return parsing
 
 if __name__ == "__main__":
-    evaluate(dspth='/home/zll/data/CelebAMask-HQ/test-img/116.jpg', cp='79999_iter.pth')
+    #evaluate(dspth='/home/zll/data/CelebAMask-HQ/test-img/116.jpg', cp='79999_iter.pth')
+    evaluate('./imgs/116.jpg', cp='cp/79999_iter.pth') #이렇게 바꾸면 오류는 해결. line74 주석처리하면 아무것도 출력 X
 
 

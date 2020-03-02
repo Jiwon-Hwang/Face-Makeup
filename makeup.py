@@ -7,8 +7,8 @@ import argparse
 
 
 def parse_args():
-    parse = argparse.ArgumentParser()
-    parse.add_argument('--img-path', default='imgs/116.jpg')
+    parse = argparse.ArgumentParser() #파이썬 내장 모듈(argparse). 스크립트 호출 당시 인자값을 다르게 줘서 다르게 동작시키고 싶을 때.
+    parse.add_argument('--img-path', default='imgs/116.jpg') #--img-path 에 해당하는 값 인자값으로 받음
     return parse.parse_args()
 
 
@@ -32,7 +32,7 @@ def sharpen(img):
 
 
 def hair(image, parsing, part=17, color=[230, 50, 20]):
-    b, g, r = color      #[10, 50, 250]       # [10, 250, 10]
+    b, g, r = color      
     tar_color = np.zeros_like(image)
     tar_color[:, :, 0] = b
     tar_color[:, :, 1] = g
@@ -55,6 +55,7 @@ def hair(image, parsing, part=17, color=[230, 50, 20]):
     return changed
 
 
+# __name__ : import한 모듈의 이름이 들어가는 부분. import하면 우선 그 모듈 실행함. 모듈 실행 시 __name__에 모듈 이름 들어감 / 시작점인지 아닌지(모듈인지) 확인하는 코드
 if __name__ == '__main__':
     # 1  face
     # 11 teeth
@@ -64,6 +65,7 @@ if __name__ == '__main__':
 
     args = parse_args()
 
+    # dictionary형. table['hair']=17로 사용
     table = {
         'hair': 17,
         'upper_lip': 12,
@@ -74,19 +76,20 @@ if __name__ == '__main__':
     cp = 'cp/79999_iter.pth'
 
     image = cv2.imread(image_path)
-    ori = image.copy()
-    parsing = evaluate(image_path, cp)
-    parsing = cv2.resize(parsing, image.shape[0:2], interpolation=cv2.INTER_NEAREST)
+    ori = image.copy() # 원래 original image
+    parsing = evaluate(image_path, cp) # test.py의 evaluate() 함수. (512, 512)의 image (parsing) return. (cp/79999_iter.pth 에 저장된 weight들 불러오는 코드? 성능평가?)
+    parsing = cv2.resize(parsing, image.shape[0:2], interpolation=cv2.INTER_NEAREST) #이미지 사이즈 조정. 픽셀사이 값 보간. / image.shape[] : [Y축, X축, 채널수] 순서 중 0,1번지 2개만 가져옴
 
-    parts = [table['hair'], table['upper_lip'], table['lower_lip']]
+    parts = [table['hair'], table['upper_lip'], table['lower_lip']] #[17, 12, 13]
 
-    colors = [[17, 17, 63], [0, 57, 238], [0, 57, 238]] #[b,g,r] 순서, [[hair??],[upper_lip],[lower_lip]]
+    colors = [[17, 17, 63], [42.75, 63.84, 208.98], [42.75, 63.84, 208.98]] #[b,g,r] 순서, [[hair??],[upper_lip],[lower_lip]]
 
+    # 두 변수 part라는 index는 parts를, color는 colors를 동시에 for문을 돌음
     for part, color in zip(parts, colors):
-        image = hair(image, parsing, part, color)
+        image = hair(image, parsing, part, color) #hair함수에 들어가는 인자 image는 원래 원본이미지 / 한 부분, 한 색상(bgr)씩 들어감 => 3번 돌면 image 완성
 
-    cv2.imshow('image', cv2.resize(ori, (512, 512)))
-    cv2.imshow('color', cv2.resize(image, (512, 512)))
+    cv2.imshow('image', cv2.resize(ori, (512, 512)))    # 원본이미지 
+    cv2.imshow('color', cv2.resize(image, (512, 512)))  # makeup이미지
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
