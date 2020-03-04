@@ -46,15 +46,15 @@ def vis_parsing_maps(im, parsing_anno, stride, save_im=False, save_path='vis_res
     return vis_parsing_anno
     # return vis_im
 
-
+# 학습시키기(학습시켜놓은걸로 평가하기)
 def evaluate(image_path='./imgs/116.jpg', cp='cp/79999_iter.pth'):
 
     # if not os.path.exists(respth):
     #     os.makedirs(respth)
 
     n_classes = 19
-    net = BiSeNet(n_classes=n_classes)
-    net.cuda()
+    net = BiSeNet(n_classes=n_classes) # BiSeNet으로 net이리는 인스턴스 생성됨. 인자로 19 넣어서 만듦.
+    net.cuda() # Tensor들을 GPU로 보내기
     net.load_state_dict(torch.load(cp))
     net.eval()
 
@@ -68,6 +68,7 @@ def evaluate(image_path='./imgs/116.jpg', cp='cp/79999_iter.pth'):
         image = img.resize((512, 512), Image.BILINEAR)
         img = to_tensor(image)
         img = torch.unsqueeze(img, 0)
+        
         img = img.cuda()
         out = net(img)[0]
         parsing = out.squeeze(0).cpu().numpy().argmax(0)

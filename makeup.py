@@ -12,6 +12,7 @@ def parse_args():
     return parse.parse_args()
 
 
+# only for hair
 def sharpen(img):
     img = img * 1.0
     gauss_out = gaussian(img, sigma=5, multichannel=True)
@@ -32,25 +33,28 @@ def sharpen(img):
 
 
 def hair(image, parsing, part=17, color=[230, 50, 20]):
-    b, g, r = color      
-    tar_color = np.zeros_like(image)
-    tar_color[:, :, 0] = b
+    b, g, r = color      # ex) [230, 50, 20] == [b, g, r]
+    tar_color = np.zeros_like(image) # np.zeros_like() : 다른 배열과 같은 크기의, 0으로 채워진 배열 생성 / y,x,채널 : 3차원 행렬 image
+    tar_color[:, :, 0] = b # ex) b=230
     tar_color[:, :, 1] = g
     tar_color[:, :, 2] = r
 
     image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     tar_hsv = cv2.cvtColor(tar_color, cv2.COLOR_BGR2HSV)
-
+    
+    # upper_lip or lower_lip
     if part == 12 or part == 13:
-        image_hsv[:, :, 0:2] = tar_hsv[:, :, 0:2]
+        image_hsv[:, :, 0:2] = tar_hsv[:, :, 0:2] # h,s만 바꿔주기(H:색조, S:채도)
     else:
-        image_hsv[:, :, 0:1] = tar_hsv[:, :, 0:1]
+        image_hsv[:, :, 0:1] = tar_hsv[:, :, 0:1] # h만 바꿔주기
 
-    changed = cv2.cvtColor(image_hsv, cv2.COLOR_HSV2BGR)
+    changed = cv2.cvtColor(image_hsv, cv2.COLOR_HSV2BGR) # 다시 BGR로 변환 / 3차원 changed
 
+    # hair
     if part == 17:
         changed = sharpen(changed)
-
+    
+    # ***boolean 조건문으로 배열 indexing*** : parsing결과 imaage(배열) 요소값이, hair면 17과 0으로 이루어짐. part(=17)과 다른 parsing부분(=17이 아닌 값)만 인덱싱해서 image(원본)의 인덱싱 결과값으로 대체!
     changed[parsing != part] = image[parsing != part]
     return changed
 

@@ -226,8 +226,9 @@ class FeatureFusionModule(nn.Module):
                 nowd_params += list(module.parameters())
         return wd_params, nowd_params
 
-
+# 부모클래스 상속
 class BiSeNet(nn.Module):
+    # __init__ : 생성자. 생성자를 이용해서 받은 인자로 인스턴스 생성
     def __init__(self, n_classes, *args, **kwargs):
         super(BiSeNet, self).__init__()
         self.cp = ContextPath()
